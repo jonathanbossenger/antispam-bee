@@ -3,9 +3,9 @@
 * Tags:              anti-spam, antispam, comments, spam filter, spam protection
 * Donate link:       https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TD4AMD2D8EMZW
 * Requires at least: 4.6
-* Tested up to:      7.0
+* Tested up to:      7.1
 * Requires PHP:      5.2
-* Stable tag:        2.11.12
+* Stable tag:        2.11.13
 * License:           GPLv2 or later
 * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -69,6 +69,27 @@ Whether Antispam Bee works with a comment form submitted via AJAX depends on how
 
 If the comments are sent to the `admin-ajax.php`, the `antispam_bee_disallow_ajax_calls` filter must be used to run ASB for requests to that file as well. If the script does not send all form data to the file, but only some selected ones, further customization is probably necessary, as [exemplified in this post by Torsten Landsiedel](https://torstenlandsiedel.de/2020/10/04/ajaxifizierte-kommentare-und-antispam-bee/) (in German).
 
+### The honeypot field is visible on my site, which uses a strict Content Security Policy. What can I do? ###
+Antispam Bee hides its honeypot field with inline styles. If your site sends a Content Security Policy that does not allow inline styles (a `style-src` directive without `'unsafe-inline'`), the browser drops those styles and the field becomes visible to your visitors.
+
+Use the `antispam_bee_honeypot_styles` filter to return an empty string, so no inline styles are rendered at all:
+
+> add_filter( 'antispam_bee_honeypot_styles', '__return_empty_string' );
+
+Then hide the field from your own stylesheet, which your policy already allows:
+
+> textarea[aria-label="hp-comment"] {
+>     padding: 0 !important;
+>     clip: rect(1px, 1px, 1px, 1px) !important;
+>     position: absolute !important;
+>     white-space: nowrap !important;
+>     height: 1px !important;
+>     width: 1px !important;
+>     overflow: hidden !important;
+> }
+
+The same filter can also be used to return a modified set of styles instead of an empty one. Do not hide the field with `display: none` or `visibility: hidden`, as many spam bots skip fields hidden that way, which is exactly what the honeypot needs them not to do.
+
 ### Does Antispam Bee store any private user data, and is it compliant with GDPR? ###
 Antispam Bee is developed in Europe. You might have heard we can be a bit nitpicky over here when it comes to privacy. The plugin does not save private user data and is 100% compliant with GDPR.
 
@@ -97,6 +118,16 @@ A complete documentation is available on [pluginkollektiv.org](https://antispamb
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team helps validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/445425e4-f5dd-4404-80a7-690999f5bcb3)
 
 ## Changelog ##
+
+### 2.11.13 ###
+  * Enhancement: New filter `antispam_bee_honeypot_styles` to change the styles of the honeypot field
+  * Fix: Escape the URL of the settings link (Thanks @thisismyurl!)
+  * Fix: Strip tags in the spam notification email the WordPress way (Thanks @thisismyurl!)
+  * Fix: Show the plugin update notice again (Thanks @thisismyurl!)
+  * Fix: Reject more invalid paths for the spam log file (Thanks @thisismyurl!)
+  * Fix: Return a boolean from the mobile theme check (Thanks @thisismyurl!)
+  * Tweak: Use the WordPress function for the word count type
+  * Maintenance: Tested up to WordPress 7.1
 
 ### 2.11.12 ###
   * Fix: Fatal error in the dashboard spam counter (Thanks @robertstaddon!)
